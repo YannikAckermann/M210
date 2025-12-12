@@ -18,8 +18,9 @@ jobs:
     steps:
       - name: Set IMAGE lowercase
         run: |
-          IMAGE=$(echo "ghcr.io/${github.repository }/app" | tr '[:upper:]' '[:lower:]')
-          echo "IMAGE=$IMAGE" >> $GITHUB_ENV  
+          IMAGE=$(echo "ghcr.io/${{ github.repository }}/app" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
 
       - name: Checkout Code
         uses: actions/checkout@v4

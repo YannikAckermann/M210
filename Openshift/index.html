@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Modern Cloud M210 Experience</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #020617;
+      --fg: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #a855f7;
+      --gradient: linear-gradient(135deg, #0ea5e9, #6366f1, #a855f7);
+      --radius: 18px;
+      --shadow: 0 40px 80px rgba(0,0,0,0.65);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, #1d2755 0, transparent 55%),
+        radial-gradient(circle at bottom right, #0f766e 0, transparent 55%),
+        #020617;
+      color: var(--fg);
+      min-height: 100vh;
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Hintergrund-Orbs / Lichter */
+    .bg-orb {
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #22d3ee, transparent 60%);
+      opacity: 0.2;
+      filter: blur(12px);
+      z-index: -2;
+      animation: float 18s infinite alternate ease-in-out;
+    }
+
+    .bg-orb.orb-2 {
+      background: radial-gradient(circle at 70% 60%, #a855f7, transparent 60%);
+      top: auto;
+      bottom: -120px;
+      right: -120px;
+      left: auto;
+      animation-duration: 22s;
+    }
+
+    .scan-lines {
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(to bottom, rgba(15,23,42,0.65) 1px, transparent 1px);
+      background-size: 100% 3px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: -1;
+      mix-blend-mode: soft-light;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translate(-40px, -40px) scale(1);
+      }
+      100% {
+        transform: translate(40px, 40px) scale(1.1);
+      }
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      padding: 40px 40px 32px;
+      border-radius: 28px;
+      background: radial-gradient(circle at top left, rgba(148,163,184,0.18), transparent 55%),
+                  rgba(15,23,42,0.92);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(148,163,184,0.3);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glow-ring {
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      border: 1px solid transparent;
+      background: conic-gradient(from 180deg, rgba(56,189,248,0.2), rgba(168,85,247,0.4), rgba(56,189,248,0.2));
+      -webkit-mask: 
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 1px;
+      opacity: 0.6;
+      pointer-events: none;
+      animation: ring-spin 24s linear infinite;
+    }
+
+    @keyframes ring-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      gap: 16px;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #38bdf8, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 24px rgba(56,189,248,0.8);
+    }
+
+    .nav-title {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #cbd5f5;
+    }
+
+    .nav-pill {
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15,23,42,0.7);
+    }
+
+    .nav-pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 12px rgba(34,197,94,0.8);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 32px;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: clamp(38px, 5vw, 54px);
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eyebrow-pill {
+      width: 32px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22d3ee, #a855f7);
+    }
+
+    p {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 640px;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .tag-chip {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.55);
+      color: #cbd5f5;
+      background: radial-gradient(circle at top left, rgba(148,163,184,0.16), transparent 60%);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 13px 22px;
+      font-size: 15px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, filter 0.18s ease;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn span.spark {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 0 0, rgba(255,255,255,0.35) 0, transparent 55%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+      box-shadow: 0 20px 40px rgba(59,130,246,0.55);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 22px 60px rgba(59,130,246,0.8);
+      filter: saturate(1.2);
+    }
+
+    .btn-primary:hover span.spark {
+      opacity: 1;
+    }
+
+    .btn-ghost {
+      background: rgba(15,23,42,0.9);
+      color: var(--fg);
+      border: 1px solid rgba(148,163,184,0.6);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .subline {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .subline strong {
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+
+    .sparkle {
+      font-size: 15px;
+    }
+
+    /* rechte Seite – spektakuläre "Preview" */
+    .hero-panel {
+      border-radius: 24px;
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.16), transparent 60%),
+                  radial-gradient(circle at bottom right, rgba(168,85,247,0.2), transparent 60%),
+                  rgba(15,23,42,0.95);
+      border: 1px solid rgba(148,163,184,0.5);
+      padding: 18px 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .hero-env-badge {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(56,189,248,0.6);
+      color: #bae6fd;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-env-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34,197,94,0.9);
+    }
+
+    .hero-grid {
+      margin-top: 6px;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .hero-main-card {
+      border-radius: 18px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.6);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .hero-main-header span strong {
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .hero-chart {
+      height: 120px;
+      border-radius: 12px;
+      background-image: 
+        linear-gradient(to right, rgba(148,163,184,0.18) 1px, transparent 1px),
+        linear-gradient(to top, rgba(148,163,184,0.18) 1px, transparent 1px);
+      background-size: 18px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-chart-line {
+      position: absolute;
+      inset: 0;
+      background: conic-gradient(from 160deg, rgba(56,189,248,0.0), rgba(56,189,248,0.8), rgba(168,85,247,0.9), rgba(56,189,248,0));
+      mix-blend-mode: screen;
+      opacity: 0.9;
+      mask-image: radial-gradient(circle at 0 100%, black 0, transparent 65%);
+      transform-origin: left bottom;
+      animation: pulse-chart 11s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse-chart {
+      0% { transform: scale(1.02, 1); }
+      100% { transform: scale(1.08, 1.06); }
+    }
+
+    .hero-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .hero-footer strong {
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+
+    .hero-side {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mini-card {
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.6);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mini-card strong {
+      color: #e5e7eb;
+      font-size: 12px;
+    }
+
+    .mini-pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15,118,110,0.3);
+      color: #6ee7b7;
+      border: 1px solid rgba(45,212,191,0.7);
+    }
+
+    .mini-pill.red {
+      background: rgba(153,27,27,0.3);
+      color: #fecaca;
+      border-color: rgba(248,113,113,0.9);
+    }
+
+    .preview-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .preview-thumb {
+      height: 40px;
+      border-radius: 10px;
+      background-image: linear-gradient(135deg, rgba(56,189,248,0.4), rgba(15,23,42,0.9));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview-thumb:nth-child(2) {
+      background-image: linear-gradient(135deg, rgba(168,85,247,0.5), rgba(15,23,42,0.9));
+    }
+
+    .preview-thumb:nth-child(3) {
+      background-image: linear-gradient(135deg, rgba(52,211,153,0.5), rgba(15,23,42,0.9));
+    }
+
+    .preview-thumb::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(to right, rgba(15,23,42,0) 0%, rgba(15,23,42,0.7) 50%, rgba(15,23,42,0) 100%);
+      mix-blend-mode: soft-light;
+      opacity: 0.6;
+    }
+
+    .features {
+      margin-top: 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .feature-card {
+      padding: 16px 18px;
+      border-radius: var(--radius);
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.55);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      transition: 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top, rgba(56,189,248,0.12), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-title {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #e5e7eb;
+    }
+
+    .feature-text {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .feature-tag {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #a5b4fc;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 960px) {
+      body {
+        padding: 20px;
+      }
+
+      .container {
+        padding: 24px 20px 20px;
+      }
+
+      .layout {
+        grid-template-columns: minmax(0,1fr);
+      }
+
+      .hero-panel {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hintergrund Effekte -->
+  <div class="bg-orb" style="top:-140px; left:-150px;"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="scan-lines"></div>
+
+  <div class="container">
+    <div class="glow-ring"></div>
+
+    <header class="nav">
+      <div class="nav-left">
+        <div class="logo-badge">M</div>
+        <div>
+          <div class="nav-title">Modern Cloud M210</div>
+          <div style="font-size:12px; color:var(--muted);">
+            Static HTML • Nginx • React-ready
+          </div>
+        </div>
+      </div>
+      <div class="nav-pill">
+        <span class="nav-pill-dot"></span>
+        Live Demo Environment · v1.0.0
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- linke Seite: Text / Call-to-Action -->
+      <section>
+        <div class="eyebrow">
+          <div class="eyebrow-pill"></div>
+          Cloud Ready · Präsentations-Edition
+        </div>
+
+        <h1>Modern Cloud M210 Experience</h1>
+
+        <p>
+          Eine spektakuläre, glasartige Oberfläche für deine Übungen in
+          <strong>Docker, nginx, OpenShift und CI/CD</strong>. Perfekt als
+          Demo-Frontend, Landingpage oder Show-off deines Deployments.
+        </p>
+
+        <div class="tag-row">
+          <div class="tag-chip">Glas-Effekt UI</div>
+          <div class="tag-chip">Dark Mode</div>
+          <div class="tag-chip">Perfect für Screenshots</div>
+          <div class="tag-chip">100% Static HTML</div>
+        </div>
+
+        <div class="buttons">
+          <button class="btn btn-primary">
+            <span class="spark"></span>
+            Los geht’s
+            <span>→</span>
+          </button>
+          <button class="btn btn-ghost">
+            Mehr erfahren
+          </button>
+        </div>
+
+        <div class="subline">
+          <span class="sparkle">✨</span>
+          <span><strong>Deploy-ready:</strong> Einfach in einen Container packen, Port exposen, fertig.</span>
+        </div>
+      </section>
+
+      <!-- rechte Seite: hero / pseudo-dashboard -->
+      <section class="hero-panel">
+        <div class="hero-header">
+          <div class="hero-title">Live Preview · M210 Cluster</div>
+          <div class="hero-env-badge">
+            <span class="hero-env-dot"></span>
+            all pods healthy
+          </div>
+        </div>
+
+        <div class="hero-grid">
+          <div class="hero-main-card">
+            <div class="hero-main-header">
+              <span><strong>Traffic</strong> today</span>
+              <span>Requests · ms · Errors</span>
+            </div>
+            <div class="hero-chart">
+              <div class="hero-chart-line"></div>
+            </div>
+            <div class="hero-footer">
+              <span><strong>~ 12.4k</strong> Requests</span>
+              <span><strong>99.98%</strong> Success · <strong>14 ms</strong> avg</span>
+            </div>
+          </div>
+
+          <div class="hero-side">
+            <div class="mini-card">
+              <div>
+                <div><strong>Frontend</strong> – React</div>
+                <div>Image: <code>web:v1.0.0</code></div>
+              </div>
+              <div class="mini-pill">Running</div>
+            </div>
+
+            <div class="mini-card">
+              <div>
+                <div><strong>Backend</strong> – API</div>
+                <div>Image: <code>api:v1.0.0</code></div>
+              </div>
+              <div class="mini-pill">Running</div>
+            </div>
+
+            <div class="mini-card">
+              <div>
+                <div><strong>CI/CD</strong> – Pipeline</div>
+                <div>Last deploy: 2 min ago</div>
+              </div>
+              <div class="mini-pill red">0 failed</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-strip">
+          <div class="preview-thumb"></div>
+          <div class="preview-thumb"></div>
+          <div class="preview-thumb"></div>
+        </div>
+      </section>
+    </main>
+
+    <section class="features">
+      <div class="feature-card">
+        <div class="feature-tag">01 · Präsentation</div>
+        <div class="feature-title">Ideal für Demos & Screenshots</div>
+        <div class="feature-text">
+          Zeige deinen M210- oder Cloud-Stack mit einer modernen Oberfläche,
+          ohne ein komplettes Framework einrichten zu müssen.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-tag">02 · Deployment</div>
+        <div class="feature-title">Perfekt für Docker & nginx</div>
+        <div class="feature-text">
+          Einfach als statische HTML-Seite in ein Image packen, z.B.
+          <code>/usr/share/nginx/html</code> – fertig für Container, Kubernetes
+          oder OpenShift.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-tag">03 · Erweiterbar</div>
+        <div class="feature-title">Bereit für React & APIs</div>
+        <div class="feature-text">
+          Du kannst später React einhängen, API-Calls einbauen oder dieses
+          Layout als Basis für deine eigene App benutzen.
+        </div>
+      </div>
+    </section>
+  </div>
+
+</body>
+</html>

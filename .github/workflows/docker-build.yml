@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 env:
-  TAG: ${{ github.sha }}    
+  TAG: ${{ github.sha }}
 
 jobs:
   build-and-deploy:
@@ -18,9 +18,9 @@ jobs:
     steps:
       - name: Set IMAGE lowercase
         run: |
-          IMAGE=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          IMAGE=$(echo "ghcr.io/${github.repository }/app" | tr '[:upper:]' '[:lower:]')
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV  
-        
+
       - name: Checkout Code
         uses: actions/checkout@v4
 

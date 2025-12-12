@@ -33,9 +33,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
+            -f 210/Openshift/Dockerfile \
             -t ${{ steps.vars.outputs.IMAGE }}:latest \
             -t ${{ steps.vars.outputs.IMAGE }}:${{ github.sha }} \
-            .
+            210/Openshift
+
 
       - name: Push Docker image
         run: |

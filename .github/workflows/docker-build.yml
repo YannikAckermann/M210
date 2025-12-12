@@ -1,36 +1,71 @@
-name: Build and Push Docker Image
+name: Build and Deploy to APPUiO
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch: {}
+    branches: [ "main" ]
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/app
+  TAG: ${{ github.sha }}    
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
-      packages: write
+      packages: write   
+      id-token: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: yannikackermann
-          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Log in to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
+            -u "${{ github.actor }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t $IMAGE:$TAG $GITHUB_WORKSPACE
+
+      - name: Push image to GitHub Packages (ghcr.io)
+        run: |
+          docker push $IMAGE:$TAG
 
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./Openshift
-          file: ./Openshift/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/yannikackermann/html-openshift-app:latest
-            ghcr.io/yannikackermann/html-openshift-app:${{ github.sha }}
+      - name: Install oc CLI
+        run: |
+          curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz \
+            | tar zx && sudo mv oc kubectl /usr/local/bin/
+
+      - name: Login to APPUiO
+        run: |
+          oc login ${{ secrets.APPUIO_SERVER }} \
+            --token=${{ secrets.APPUIO_TOKEN }}
+
+      - name: Select namespace/project
+        run: |
+          oc project ${{ secrets.APPUIO_PROJECT }}
+
+
+      - name: Prepare deploymentEdited folder
+        run: |
+          mkdir -p deploymentEdited
+          cp -r deployment/* deploymentEdited/
+
+      - name: Substitute image tag in YAML files
+        run: |
+          export TAG=${{ env.TAG }}
+          export NAME=${{ env.IMAGE }}
+          shopt -s globstar nullglob
+          for file in deploymentEdited/**/*.yml deploymentEdited/**/*.yaml; do
+            echo "Processing $file"
+            envsubst '${TAG} ${NAME}' < "$file" > "${file}.tmp"
+            mv "${file}.tmp" "$file"
+          done
+
+      - name: Update Deployment image
+        run: |
+          oc apply -f $GITHUB_WORKSPACE/deploymentEdited --recursive
